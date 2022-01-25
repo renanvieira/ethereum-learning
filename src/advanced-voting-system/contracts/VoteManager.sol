@@ -24,9 +24,13 @@ contract VoteManager {
         proposalsDeadLineInDays = proposalDeadLineInDays;
     }
 
-    function createProposal(string memory metadata) external returns (uint256) {
+    function createProposal(string memory metadata)
+        external
+        returns (uint256, address proposalAddress)
+    {
         require(bytes(metadata).length > 0);
-        uint deadlineTimestamp = block.timestamp + proposalsDeadLineInDays * 1 days;
+        uint256 deadlineTimestamp = block.timestamp +
+            (proposalsDeadLineInDays * 1 days);
 
         Proposal newProposal = new Proposal(metadata, deadlineTimestamp);
         address newProposalAddress = address(newProposal);
@@ -34,7 +38,10 @@ contract VoteManager {
         proposals.push(newProposal);
 
         uint256 proposalId = generateId(msg.sender, metadata);
-        require(_proposalMap[proposalId].exists == false, "Proposal Already Exists");
+        require(
+            _proposalMap[proposalId].exists == false,
+            "Proposal Already Exists"
+        );
 
         _proposalMap[proposalId].id = generateId(msg.sender, metadata);
         _proposalMap[proposalId].index = proposals.length;
@@ -44,10 +51,20 @@ contract VoteManager {
 
         emit ProposalCreated(newProposalAddress);
 
-        return proposalId;
+        return (proposalId, newProposalAddress);
     }
 
-    function generateId(address creator, string memory metadata) internal pure returns(uint256){
+    function getProposal(uint256 id) external view returns (address) {
+        require(id > 0);
+        require(_proposalMap[id].exists, "The proposal request don't exists");
+        return _proposalMap[id].contractAddress;
+    }
+
+    function generateId(address creator, string memory metadata)
+        internal
+        pure
+        returns (uint256)
+    {
         return uint256(keccak256(abi.encode(creator, metadata)));
     }
 }

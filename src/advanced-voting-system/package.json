@@ -1,5 +1,8 @@
 {
   "name": "advanced-voting-system",
+  "scripts": {
+    "build:ts": "node_modules/typescript/bin/tsc --build"
+  },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.4",
     "@nomiclabs/hardhat-waffle": "^2.0.2",
