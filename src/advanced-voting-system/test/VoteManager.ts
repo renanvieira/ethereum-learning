@@ -42,12 +42,7 @@ describe("VoteManager contract", function () {
     const callProposal = VoteManagerContract.createProposal('');
     await expect(callProposal).to.be.reverted;
   });
-
-  it("New Proposal has to have deadline in the future", async function () {
-    const callProposal = VoteManagerContract.createProposal('/test-deadline.json', moment().subtract(1, 'days').unix());
-    await expect(callProposal).to.be.reverted;
-  });
-
+  
   it("Proposals can't have duplicated metadata URL", async function () {
     const metadata = `/test-${moment().unix()}.json`;
     const callProposalFirst = await VoteManagerContract.createProposal(metadata);

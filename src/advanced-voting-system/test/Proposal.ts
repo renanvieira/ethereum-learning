@@ -57,4 +57,8 @@ describe("Proposal contract", function () {
         expect(voteCount.yesVotes).to.be.equal(1);
         expect(voteCount.noVotes).to.be.equal(1);
     });
+
+    it("Proposal cannot be created with deadline in the past", async function(){
+        await expect(ProposalContractFactory.deploy("/test-metdata.json", moment().subtract(1, 'days').unix())).to.be.reverted;
+    });
 });
