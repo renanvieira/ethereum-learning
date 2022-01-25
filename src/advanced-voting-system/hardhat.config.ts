@@ -1,6 +1,7 @@
 import { task } from "hardhat/config";
 import "@nomiclabs/hardhat-waffle";
 import 'solidity-coverage';
+import "hardhat-typechain";
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -27,6 +28,10 @@ module.exports = {
         runs: 1000,
       },
     },
-  }
+  },
+  typechain: {
+    outDir: "web/advanced-voting-system-ui/contracts",
+    target: "ethers-v5",
+  },
 };
 
