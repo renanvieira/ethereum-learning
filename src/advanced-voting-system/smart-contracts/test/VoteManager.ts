@@ -1,15 +1,15 @@
 import { ethers } from "hardhat";
-import { Contract, ContractFactory, Signer } from "ethers";
+import { BigNumber, Contract, ContractFactory, Signer } from "ethers";
 import moment from 'moment';
 import { expect } from 'chai';
 
 describe("VoteManager contract", function () {
   let accounts: Signer[];
+  let owner: string;
   let VoteManagerContractFactory: ContractFactory;
   let ProposalContractFactory: ContractFactory;
   let currentBlockTimestamp: moment.Moment;
-  let nextDayBlockTimestamp: moment.Moment;
-  let VoteManagerContract : Contract;
+  let VoteManagerContract: Contract;
 
   before(async () => {
     VoteManagerContractFactory = await ethers.getContractFactory("VoteManager");
@@ -18,6 +18,7 @@ describe("VoteManager contract", function () {
 
   beforeEach(async function () {
     accounts = await ethers.getSigners();
+    owner = await accounts[0].getAddress();
     const currentBlock = await ethers.provider.getBlock('latest');
     currentBlockTimestamp = moment(currentBlock.timestamp * 1000);
 
@@ -35,39 +36,54 @@ describe("VoteManager contract", function () {
     expect(proposalAddress).to.be.properAddress;
 
     const receiptPromise = await VoteManagerContract.createProposal('/test.json');
-    expect(receiptPromise).to.emit(VoteManagerContract, 'ProposalCreated').withArgs(proposalAddress);
+    expect(receiptPromise).to.emit(VoteManagerContract, 'ProposalCreated').withArgs(owner, expectedProposalId, proposalAddress);
   });
 
   it("New Proposal has to have metadata URL", async function () {
     const callProposal = VoteManagerContract.createProposal('');
     await expect(callProposal).to.be.reverted;
   });
-  
+
   it("Proposals can't have duplicated metadata URL", async function () {
     const metadata = `/test-${moment().unix()}.json`;
+
     const callProposalFirst = await VoteManagerContract.createProposal(metadata);
     const callProposalSecond = VoteManagerContract.createProposal(metadata);
+
     await expect(callProposalSecond).to.be.reverted;
   });
 
-  it("Anyone should be able to get proposal address by id", async function(){
+  it("Anyone should be able to get proposal data by address", async function () {
     const [proposalId, proposalAddress] = await VoteManagerContract.callStatic.createProposal('/test-getProposal.json');
     const receipt = await VoteManagerContract.createProposal('/test-getProposal.json');
 
-    const address = await VoteManagerContract.callStatic.getProposal(proposalId);
+    const data = await VoteManagerContract.callStatic.getProposal(proposalAddress);
 
-    expect(address).to.be.properAddress;
+    expect(data.contractAddress).to.be.properAddress;
     expect(proposalAddress).to.be.properAddress;
-    expect(address).to.be.equal(proposalAddress);
-
+    expect(data.contractAddress).to.be.equal(proposalAddress);
+    expect(data.creator).to.be.equal(await accounts[0].getAddress());
+    expect((data.id as BigNumber).gt(BigNumber.from('0'))).to.be.true;
+    expect((data.index as BigNumber).eq(BigNumber.from('0'))).to.be.true;
+    expect(data.exists).to.be.true;
   });
 
-  it("User should see an error when get proposal with id greater than 0", async function(){
-    await expect(VoteManagerContract.getProposal(0)).to.be.reverted;
+  it("User should see an error when get proposal address is 0x0", async function () {
+    await expect(VoteManagerContract.getProposal(ethers.constants.AddressZero)).to.be.reverted;
   });
 
-  it("User should see an error when get proposal with inexistent id", async function(){
-    await expect(VoteManagerContract.getProposal(999)).to.be.reverted;
+  it("User should see an error when get proposal with inexistent id", async function () {
+    await expect(VoteManagerContract.getProposal('0x8ba1f109551bD432803012645Ac136ddd64DBA72')).to.be.reverted;
+  });
+
+  it("Get the number of proposals created in the contract", async function () {
+
+    const proposal1 = await VoteManagerContract.createProposal('/test-getProposal1.json');
+    const proposal2 = await VoteManagerContract.createProposal('/test-getProposal2.json');
+
+    const result = await VoteManagerContract.getNumberOfProposals();
+
+    expect(result).to.be.equal(2);
   });
 
 });

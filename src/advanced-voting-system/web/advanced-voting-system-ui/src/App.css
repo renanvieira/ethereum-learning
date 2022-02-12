@@ -1,0 +1,12 @@
+.App {
+
+}
+
+.main-container{
+  margin-top: 25px;
+}
+
+.justify {
+  text-align: justify;
+  text-justify: inter-word;
+}

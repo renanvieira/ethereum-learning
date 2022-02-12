@@ -16,20 +16,31 @@ contract Proposal {
 
     string public metadata;
     uint256 public proposalDeadline;
+    uint256 public id;
 
     mapping(address => bool) _addressVoted;
     address[] public _noVotes;
     address[] public _yesVotes;
 
-    constructor(string memory metadataURL, uint256 deadline) {
+    event Voted(address indexed voter, address indexed proposal);
+
+    constructor(
+        string memory metadataURL,
+        uint256 deadline,
+        uint256 _id
+    ) {
         require(block.timestamp < deadline);
 
+        id = _id;
         metadata = metadataURL;
         proposalDeadline = deadline;
     }
 
     function vote(Vote userVote) external {
-        require(_addressVoted[msg.sender] == false, "This address already voted");
+        require(
+            _addressVoted[msg.sender] == false,
+            "This address already voted"
+        );
         require(block.timestamp <= proposalDeadline, "Proposal expired");
 
         _addressVoted[msg.sender] = true;
@@ -38,9 +49,15 @@ contract Proposal {
         } else {
             _noVotes.push(msg.sender);
         }
+
+        emit Voted(msg.sender, address(this));
     }
 
-    function getVotes() external view returns (uint yesVotes, uint noVotes) {
+    function getVotes()
+        external
+        view
+        returns (uint256 yesVotes, uint256 noVotes)
+    {
         return (_yesVotes.length, _noVotes.length);
     }
 }

@@ -2,11 +2,12 @@ import { ethers } from 'hardhat';
 
 async function main() {
   const VoteManager = await ethers.getContractFactory("VoteManager");
-  const voteManagerContract = await VoteManager.deploy(1);
 
-  await voteManagerContract.deployed();
+  const voteManagerContract = await VoteManager.deploy(2);
 
-  console.log("VoteManager deployed to:", voteManagerContract.address);
+  const deployed = await voteManagerContract.deployed();
+
+  console.log("VoteManager deployed to:", deployed.address);
 }
 
 
@@ -16,3 +17,4 @@ main()
     console.error(error);
     process.exit(1);
   });
+  
