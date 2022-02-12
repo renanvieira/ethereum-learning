@@ -1,5 +1,5 @@
 import { ethers, network } from "hardhat";
-import { Contract, ContractFactory, Signer } from "ethers";
+import { BigNumber, Contract, ContractFactory, Signer } from "ethers";
 import moment from 'moment';
 import { expect } from 'chai';
 
@@ -11,6 +11,8 @@ describe("Proposal contract", function () {
     let createProposalReceipt;
     let ProposalContract: Contract | null;
     let VoteManagerContract: Contract | null;
+    let currentBlockTimestamp: moment.Moment;
+    let proposalId : BigNumber;
 
     before(async () => {
         VoteManagerContractFactory = await ethers.getContractFactory("VoteManager");
