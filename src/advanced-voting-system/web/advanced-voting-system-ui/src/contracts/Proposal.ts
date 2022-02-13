@@ -27,6 +27,7 @@ export interface ProposalInterface extends utils.Interface {
     "metadata()": FunctionFragment;
     "proposalDeadline()": FunctionFragment;
     "vote(uint8)": FunctionFragment;
+    "withdraw()": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -45,6 +46,7 @@ export interface ProposalInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "vote", values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: "withdraw", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "_noVotes", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "_yesVotes", data: BytesLike): Result;
@@ -56,6 +58,7 @@ export interface ProposalInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "vote", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 
   events: {
     "Voted(address,address)": EventFragment;
@@ -119,6 +122,10 @@ export interface Proposal extends BaseContract {
       userVote: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    withdraw(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
 
   _noVotes(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
@@ -142,6 +149,10 @@ export interface Proposal extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  withdraw(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     _noVotes(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
@@ -160,6 +171,8 @@ export interface Proposal extends BaseContract {
     proposalDeadline(overrides?: CallOverrides): Promise<BigNumber>;
 
     vote(userVote: BigNumberish, overrides?: CallOverrides): Promise<void>;
+
+    withdraw(overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
@@ -190,6 +203,10 @@ export interface Proposal extends BaseContract {
       userVote: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    withdraw(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -213,6 +230,10 @@ export interface Proposal extends BaseContract {
 
     vote(
       userVote: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    withdraw(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

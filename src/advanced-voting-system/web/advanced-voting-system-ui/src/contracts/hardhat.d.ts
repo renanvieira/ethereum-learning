@@ -17,6 +17,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Proposal__factory>;
     getContractFactory(
+      name: "TimeLock",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TimeLock__factory>;
+    getContractFactory(
       name: "VoteManager",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.VoteManager__factory>;
@@ -26,6 +30,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.Proposal>;
+    getContractAt(
+      name: "TimeLock",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TimeLock>;
     getContractAt(
       name: "VoteManager",
       address: string,

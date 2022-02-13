@@ -43,7 +43,6 @@ function CreateProposalView(): JSX.Element {
             const client = IPFSCreate({ url: "http://localhost:5001" });
 
             const content = JSON.stringify({ title: componentState.title, description: componentState.description, timestamp: new Date().getTime() });
-            console.log('content', content);
 
             const ipfsResult = await client.add({
                 content: uint8ArrayFromString(content)
@@ -59,9 +58,9 @@ function CreateProposalView(): JSX.Element {
         try {
             const voteManager = VoteManager__factory.connect(VOTE_MANAGER_CONTRACT_ADDRESS, web3Provider.signer);
 
-            const proposalResult = await voteManager.createProposal(ipfsPath);
+            const proposalResult = await voteManager.createProposal(ipfsPath, { value: ethers.utils.parseEther('1') });
 
-            console.log(await proposalResult.wait());
+            await proposalResult.wait();
 
             const filter = voteManager.filters.ProposalCreated(await web3Provider.signer.getAddress())
 
@@ -70,7 +69,7 @@ function CreateProposalView(): JSX.Element {
                 setComponentState({ ...componentState, proposalAddress, proposalId: proposalId.toString(), showModal: true });
             });
         } catch (e: any) {
-            setComponentState({ ...componentState, showErrorModal: true, error: `Failure while interacting with VoteManager contract: ${e}` });
+            setComponentState({ ...componentState, showErrorModal: true, error: `Failure while interacting with VoteManager contract: ${e.message} | ${e.data?.message}` });
             return;
         }
     };
@@ -98,7 +97,7 @@ function CreateProposalView(): JSX.Element {
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formDescription">
                         <Form.Label>Description</Form.Label>
-                        <Form.Control name="description" as="textarea" rows={10} cols={50} placeholder="Description" onChange={onInputChange} value={componentState.description} required/>
+                        <Form.Control name="description" as="textarea" rows={10} cols={50} placeholder="Description" onChange={onInputChange} value={componentState.description} required />
                     </Form.Group>
                     <Button variant="primary" type="button" onClick={(e) => onSubmit(e)}>
                         Submit

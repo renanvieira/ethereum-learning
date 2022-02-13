@@ -8,8 +8,6 @@ import CreateProposalView from './routes/CreateProposalView';
 import ListProposalView from './routes/ListProposalView';
 import ShowProposalView from './routes/ShowProposalView';
 import { getWeb3Provider, EthersContext } from './utils/web3';
-import dotenv from "dotenv";
-dotenv.config();
 
 export default function App(): JSX.Element {
   const [web3Provider, setWeb3Provider] = useState<any | null>(null);

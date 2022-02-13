@@ -32,8 +32,11 @@ contract VoteManager {
 
     function createProposal(string memory metadata)
         external
+        payable
         returns (uint256, address)
     {
+        require(msg.value == 1 ether);
+
         uint256 proposalId = generateId(msg.sender, metadata);
         require(bytes(metadata).length > 0);
         require(_proposalIds[proposalId] == false, "Proposal Already Exists");
@@ -41,11 +44,13 @@ contract VoteManager {
         uint256 deadlineTimestamp = block.timestamp +
             (proposalsDeadLineInDays * 1 days);
 
-        Proposal newProposal = new Proposal(
+        Proposal newProposal = (new Proposal){value: msg.value}(
             metadata,
             deadlineTimestamp,
-            proposalId
+            proposalId,
+            msg.sender
         );
+
         address newProposalAddress = address(newProposal);
         _proposalIds[proposalId] = true;
 

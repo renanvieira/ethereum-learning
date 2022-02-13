@@ -2,8 +2,9 @@
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
+import "./utils/TimeLock.sol";
 
-contract Proposal {
+contract Proposal is TimeLock {
     enum Vote {
         YEA,
         NAY
@@ -27,13 +28,18 @@ contract Proposal {
     constructor(
         string memory metadataURL,
         uint256 deadline,
-        uint256 _id
-    ) {
-        require(block.timestamp < deadline);
+        uint256 _id,
+        address creator
+    ) payable {
+        require(block.timestamp < deadline, "Invalid deadline timestamp");
+        require(creator != address(0), "Invalid creator address");
+        require(msg.value > 0, "Missing ETH");
 
         id = _id;
         metadata = metadataURL;
         proposalDeadline = deadline;
+
+        lockETH(creator, proposalDeadline);
     }
 
     function vote(Vote userVote) external {

@@ -8,7 +8,7 @@ import {
   BytesLike,
   CallOverrides,
   ContractTransaction,
-  Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -122,7 +122,7 @@ export interface VoteManager extends BaseContract {
   functions: {
     createProposal(
       metadata: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     getNumberOfProposals(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -137,7 +137,7 @@ export interface VoteManager extends BaseContract {
 
   createProposal(
     metadata: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   getNumberOfProposals(overrides?: CallOverrides): Promise<BigNumber>;
@@ -181,7 +181,7 @@ export interface VoteManager extends BaseContract {
   estimateGas: {
     createProposal(
       metadata: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     getNumberOfProposals(overrides?: CallOverrides): Promise<BigNumber>;
@@ -197,7 +197,7 @@ export interface VoteManager extends BaseContract {
   populateTransaction: {
     createProposal(
       metadata: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     getNumberOfProposals(

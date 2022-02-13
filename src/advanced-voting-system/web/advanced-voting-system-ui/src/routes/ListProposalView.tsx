@@ -13,6 +13,7 @@ import moment from 'moment';
 import { Link } from "react-router-dom";
 import Tooltip from 'react-bootstrap/Tooltip';
 import Spinner from 'react-bootstrap/Spinner';
+import { ethers } from "ethers";
 
 type State = {
     account: any;
@@ -35,6 +36,10 @@ function Proposal(props: any) {
         }
     }, [props]);
 
+    console.log('deadline', props.item.deadline);
+    const isExpired = props.item.deadline <= moment().unix();
+    const isVoteDisabled = votes.addressAlreadyVoted || isExpired;
+
     return (
         <Card style={{ width: '350px' }}>
             <Card.Body>
@@ -45,27 +50,38 @@ function Proposal(props: any) {
                 <Card.Link as="div">
                     <hr />
                     <ButtonGroup aria-label="Basic example" style={{ width: '100%' }}>
-                        <Button variant="primary" onClick={(e) => props.voteClick(e, props.item.proposalAddress, Vote.Yay)} disabled={votes.addressAlreadyVoted}>
+                        <Button variant="primary" onClick={(e) => props.voteClick(e, props.item.proposalAddress, Vote.Yay)} disabled={isVoteDisabled}>
                             Yes <Badge bg="secondary">{votes.yesVotes.toString()}</Badge>
                         </Button>
-                        <Button variant="danger" onClick={(e) => props.voteClick(e, props.item.proposalAddress, Vote.Nay)} disabled={votes.addressAlreadyVoted}>
+                        <Button variant="danger" onClick={(e) => props.voteClick(e, props.item.proposalAddress, Vote.Nay)} disabled={isVoteDisabled}>
                             No  <Badge bg="secondary">{votes.noVotes.toString()}</Badge>
                         </Button>
                     </ButtonGroup>
                 </Card.Link>
             </Card.Body>
             <Card.Footer>
-                <small className="text-muted">Expires in&nbsp;</small>
-                <OverlayTrigger
-                    key='top'
-                    placement='top'
-                    overlay={
-                        <Tooltip id={`tooltip-deadline`}>
-                            {moment(props.item.deadline).toString()}
-                        </Tooltip>
-                    }>
-                    <small className="text-muted">{moment(props.item.deadline).fromNow()} </small>
-                </OverlayTrigger>
+                {!isExpired ?
+                    <React.Fragment>
+                        <small className="text-muted">Expires in&nbsp;</small>
+                        <OverlayTrigger
+                            key='top'
+                            placement='top'
+                            overlay={
+                                <Tooltip id={`tooltip-deadline`}>
+                                    {moment.unix(props.item.deadline).toString()}
+                                </Tooltip>
+                            }>
+                            <small className="text-muted">{moment.unix(props.item.deadline).fromNow()} </small>
+                        </OverlayTrigger>
+                    </React.Fragment>
+                    :
+                    <React.Fragment>
+                        <Button variant="primary" onClick={(e) => props.withdrawClick(e, props.item.proposalAddress)} disabled={!props.item.hasBalance} style={{ width: '100%' }}>
+                            Withdraw Locked ETH
+                        </Button>
+                        <small className="text-muted">Expired at <strong>{moment.unix(props.item.deadline).format('DD-MMM-YYYY HH:mm:ss')}</strong></small>
+                    </React.Fragment>
+                }
 
             </Card.Footer>
             <Card.Footer>
@@ -142,8 +158,10 @@ function ListProposalView() {
 
                 const proposalContract = Proposal__factory.connect(proposal.contractAddress, web3Provider.signer);
 
+
+                obj.hasBalance = web3Provider.provider.getBalance(proposal.contractAddress) > 0;
                 obj.ipfsHash = await proposalContract.metadata();
-                obj.deadline = (await proposalContract.proposalDeadline()).mul(1000).toNumber();
+                obj.deadline = (await proposalContract.proposalDeadline()).toNumber();
 
                 const file = client.cat(obj.ipfsHash);
 
@@ -184,13 +202,21 @@ function ListProposalView() {
             }
         }
 
-        setState({ ...state, proposals: proposalList, loading:false });
+        setState({ ...state, proposals: proposalList, loading: false });
     }
-    
+
+    async function withdrawAction(e: any, proposalAddress: string) {
+        const proposalContract = Proposal__factory.connect(proposalAddress, web3Provider.signer);
+
+        let result = await proposalContract.withdraw();
+
+        await result.wait()
+    }
+
     const cols = state.proposals.map((item, index) => {
         return (
             <Col key={index}>
-                <Proposal item={item} signer={web3Provider.signer} voteClick={voteAction} />
+                <Proposal item={item} signer={web3Provider.signer} voteClick={voteAction} withdrawClick={withdrawAction} />
             </Col>
         );
     });
