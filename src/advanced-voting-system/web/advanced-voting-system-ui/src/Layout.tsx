@@ -39,7 +39,7 @@ function Layout() {
                         <Nav.Link href="/">Home</Nav.Link>
                         <NavDropdown title="Proposals" id="dropdown-proposals-nav">
                             <NavDropdown.Item href="/createProposal">Create Proposal</NavDropdown.Item>
-                            <NavDropdown.Item href="/listProposals">List Proposals</NavDropdown.Item>
+                            <NavDropdown.Item href="/">List Proposals</NavDropdown.Item>
                         </NavDropdown>
                     </Nav>
                 </Container>

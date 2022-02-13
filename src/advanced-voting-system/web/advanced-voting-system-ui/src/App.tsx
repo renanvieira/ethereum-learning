@@ -20,7 +20,7 @@ export default function App(): JSX.Element {
 
         window.ethereum.on('accountsChanged', (accounts: any) => {
           if (accounts[0] !== web3.accounts[0]) {
-            setWeb3Provider({ ...web3Provider, signer: web3.provider.getSigner(accounts[0]) })
+            setWeb3Provider({ provider: web3.provider, signer: web3.provider.getSigner(accounts[0]) })
           }
         });
 
@@ -32,11 +32,9 @@ export default function App(): JSX.Element {
     <React.Fragment>
       <EthersContext.Provider value={{ web3Provider }}>
         <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Home />} />
+          <Route element={<Layout />}>
+            <Route index element={<ListProposalView />} />
             <Route path="/createProposal" element={<CreateProposalView />} />
-            <Route path="/listProposals" element={<ListProposalView />} />
-            <Route path="/showProposal/:id" element={<ShowProposalView />} />
           </Route>
         </Routes>
       </EthersContext.Provider>
